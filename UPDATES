@@ -1,0 +1,4 @@
+0.1.0:
+	Added weight support for p-values in fdrtool.
+	Dependent on fdrtool 1.2.15.
+	Removed unneeded files from fdrtool.

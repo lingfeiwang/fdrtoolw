@@ -1,4 +1,21 @@
-### fdrtool.R  (2013-09-15)
+# Copyright 2018 Lingfei Wang
+# 
+# This file is part of fdrtoolw. Fdrtoolw is modified from fdrtool,
+# whose copyright notice can be found below this notice.
+# 
+# Fdrtoolw is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# Fdrtoolw is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with fdrtoolw.  If not, see <http://www.gnu.org/licenses/>.
+
 ###
 ###    Estimate (Local) False Discovery Rates For Diverse Test Statistics
 ###    
@@ -24,8 +41,8 @@
 
 
  
-fdrtool = function(x, 
-  statistic=c("normal", "correlation", "pvalue"),
+fdrtool.w = function(x, weight,
+  statistic=c("pvalue"),
   #statistic=c("normal", "correlation", "pvalue", "studentt"),
   plot=TRUE, color.figure=TRUE, verbose=TRUE, 
   cutoff.method=c("fndr", "pct0", "locfdr"),
@@ -43,6 +60,11 @@ fdrtool = function(x,
     if (max(x) > 1 | min(x) < 0) 
       stop("input p-values must all be in the range 0 to 1!")
   }
+  
+  if(is.vector(weight)==FALSE)
+  	stop("input weight must be given as a vector!")
+  if(length(weight)!=length(x))
+  	stop("input weight must have equal length with input test statistics!")
 
   
 #### step 1 ####
@@ -55,8 +77,8 @@ fdrtool = function(x,
   {
     # use specified quantile
 
-    if(statistic=="pvalue") x0 = quantile(x, probs=1-pct0)
-    else x0 = quantile(abs(x), probs=pct0)
+    if(statistic=="pvalue") x0 = wtd.quantile(x, weights=weight, probs=1-pct0)
+    else x0 = quantile(abs(x), weights=weight, probs=pct0)
   }
   else if ( cutoff.method=="locfdr" & (statistic=="normal" | statistic=="correlation") )
   {
@@ -82,7 +104,7 @@ fdrtool = function(x,
 
     # control false nondiscovery rate
 
-    x0 = fndr.cutoff(x, statistic)
+    x0 = fndr.cutoff.w(x, weight, statistic)
   }
 
 
@@ -91,7 +113,7 @@ fdrtool = function(x,
 
   if(verbose) cat("Step 2... estimate parameters of null distribution and eta0\n")
 
-  cf.out <- censored.fit(x=x, cutoff=x0, statistic=statistic)
+  cf.out <- censored.fit.w(x=x, weight=weight, cutoff=x0, statistic=statistic)
 # cf.out looks as follows for p-values
 #     cutoff N0      eta0    eta0.var
 #[1,]   0.96 64 0.3730473 0.002141996
@@ -112,7 +134,7 @@ fdrtool = function(x,
   pval = nm$get.pval(x, scale.param)
 
   # determine cumulative empirical distribution function (pvalues)
-  ee <- ecdf.pval(pval, eta0=eta0)
+  ee <- ecdf.pval(pval, weight, eta0=eta0)
 
   g.pval <- grenander(ee)
 
@@ -202,7 +224,7 @@ fdrtool = function(x,
     else
       cols = c(1,1)
 
-    hist(ax, freq=FALSE, bre=50,
+    wtd.hist(ax, weight=weight, freq=FALSE, breaks=50,
       main=ll$main, xlab=ll$xlab, cex.main=1.8)
     lines(xxx, eta0*f0(xxx), col=cols[1], lwd=2, lty=3 )
     lines(xxx, (1-eta0)*fA(xxx), col=cols[2], lwd=2 )

@@ -1,4 +1,21 @@
-### fndr.cutoff.R  (2008-03-05)
+# Copyright 2018 Lingfei Wang
+# 
+# This file is part of fdrtoolw. Fdrtoolw is modified from fdrtool,
+# whose copyright notice can be found below this notice.
+# 
+# Fdrtoolw is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# Fdrtoolw is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with fdrtoolw.  If not, see <http://www.gnu.org/licenses/>.
+
 ###
 ###     Find Approximate Cutoff Point by an FNDR Criterion
 ###
@@ -23,7 +40,7 @@
 
 
 # find approximate cutoff based on false nondiscovery rate
-fndr.cutoff <- function(x, statistic=c("normal", "correlation", "pvalue", "studentt"))
+fndr.cutoff.w <- function(x, weight, statistic=c("pvalue"))
 {
   statistic <- match.arg(statistic)
   nm = get.nullmodel(statistic)
@@ -41,7 +58,7 @@ fndr.cutoff <- function(x, statistic=c("normal", "correlation", "pvalue", "stude
  
   fndrfunc = function(x)
   {
-    F.x = sum(ax < x)/length(ax)
+    F.x = sum(weight[ax < x])/sum(weight)
     
     if (F.x == 0)
     { 
@@ -57,13 +74,13 @@ fndr.cutoff <- function(x, statistic=c("normal", "correlation", "pvalue", "stude
 
 
   # first, find approximate null model ("guess")
-  g  = approximate.fit(x, statistic)
+  g  = approximate.fit(x, weight, statistic)
   sc.param = g$param
   e0.guess = g$eta0
 
   # second, find cutoff such that fndr is as small as possible
   MAXPCT0 = 0.99 # never use all the data
-  zeta0 = as.double(quantile(ax, probs=min(MAXPCT0, e0.guess)))
+  zeta0 = as.double(wtd.quantile(ax, weights=weight,probs=min(MAXPCT0, e0.guess)))
   #cat("DEBUG: zeta0 =", zeta0, "\n")
 
   fndr2 = fndrfunc(zeta0)

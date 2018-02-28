@@ -1,4 +1,21 @@
-### censored.fit.R  (2009-11-19)
+# Copyright 2018 Lingfei Wang
+# 
+# This file is part of fdrtoolw. Fdrtoolw is modified from fdrtool,
+# whose copyright notice can be found below this notice.
+# 
+# Fdrtoolw is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# Fdrtoolw is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with fdrtoolw.  If not, see <http://www.gnu.org/licenses/>.
+
 ###
 ###     Fit Null Distribution To Censored Data by Maximum Likelihood
 ###
@@ -31,8 +48,8 @@
 # - uniform
 
 
-censored.fit = function(x, cutoff,
-   statistic=c("normal", "correlation", "pvalue", "studentt"))
+censored.fit.w = function(x, weight, cutoff,
+   statistic=c("pvalue"))
 {
     statistic = match.arg(statistic)
     cutoff = abs(cutoff)
@@ -61,7 +78,7 @@ censored.fit = function(x, cutoff,
       x0 = cutoff[i]
       result[i,1] = x0
 
-      out = pvt.fit.nullmodel(x, x0, statistic=statistic)
+      out = pvt.fit.nullmodel(x, weight, x0, statistic=statistic)
       result[i,2] = out$N.cens
       result[i,3] = out$eta0
       result[i,4] = out$eta0.SE
@@ -96,16 +113,22 @@ num.curv = function(x, fun)
 
 ### internal functions 
 
-pvt.fit.nullmodel = function(x, x0, statistic)
+pvt.fit.nullmodel = function(x, weight, x0, statistic)
 {
   N = length(x)
 
   if (statistic=="pvalue")
-    x.cens = x[ x >= x0 ]
+  {
+  	ids=x >= x0
+    x.cens = x[ ids ]
+  }
   else
     x.cens = x[ abs(x) <= x0 ] 
 
   N.cens = length(x.cens) 
+	W.cens=sum(weight[ids])
+	W=sum(weight)
+
   if (N.cens > N) stop("N must be larger or equal to the size of the censored sample!")
   if (N.cens < 10) 
     warning(paste("Censored sample for null model estimation has only size", 
@@ -127,7 +150,7 @@ pvt.fit.nullmodel = function(x, x0, statistic)
     out = rep(0, length(pp))
     for (i in 1:length(pp))
     {
-      out[i] = length(x.cens)*log(1-nm$get.pval(x0, pp[i]))-
+      out[i] = sum(weight[ids])*log(1-nm$get.pval(x0, pp[i]))-
                sum(nm$f0(x.cens, pp[i], log=TRUE))
     }
     return(out)
@@ -171,7 +194,7 @@ pvt.fit.nullmodel = function(x, x0, statistic)
 
   # ML estimate of eta0
   m = 1-nm$get.pval(x0, sc.param)
-  th = N.cens/N
+  th = W.cens/W
   eta0 = min(1, th / m )
   #eta0 = th / m 
   eta0.SE = sqrt( th*(1-th)/(N*m*m) )

@@ -1,4 +1,21 @@
-### pval.estimate.eta0.R  (2007-10-11)
+# Copyright 2018 Lingfei Wang
+# 
+# This file is part of fdrtoolw. Fdrtoolw is modified from fdrtool,
+# whose copyright notice can be found below this notice.
+# 
+# Fdrtoolw is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# Fdrtoolw is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with fdrtoolw.  If not, see <http://www.gnu.org/licenses/>.
+
 ###
 ###     Estimating the Proportion of Null p-Values
 ###
@@ -30,6 +47,7 @@
 #Input
 #=============================================================================
 #p: a vector of p-values 
+#weight:  a vector of weights
 #method:  method for computing eta0
 #lambda:  optional tuning parameter (vector, needed for "bootstrap" and "smoothing") 
 #
@@ -48,11 +66,12 @@
 
 
 
-pval.estimate.eta0 <- function(p,
-    method=c("smoother", "bootstrap", "conservative", "adaptive", "quantile"),
+pval.estimate.eta0.w <- function(p, weight,
+    method=c("smoother","quantile"),
     lambda=seq(0,0.9,0.05), diagnostic.plot=TRUE, q=0.1)
 {
     method <- match.arg(method)
+    wa=sum(weight)
             
     if (method == "conservative") # Benjamini and Hochberg (1995)
     {
@@ -85,9 +104,7 @@ pval.estimate.eta0 <- function(p,
     
       e0.vec <- rep(0,length(lambda))
       for(i in 1:length(lambda))
-      {
-        e0.vec[i] <- mean(p >= lambda[i])/(1-lambda[i])
-      }
+        e0.vec[i] <- sum(weight[p >= lambda[i]])/(1-lambda[i])/wa
     }
 
     if(method == "quantile")
@@ -150,7 +167,7 @@ pval.estimate.eta0 <- function(p,
       info0 = paste("method =", method)
       info1 = paste("eta0 =", round(eta0, 4))
   
-      h = hist(p, freq=FALSE, bre="FD", 
+      h = wtd.hist(p, weight=weight,freq=FALSE, breaks="FD", 
                     main="Diagnostic Plot:  Distribution of p-Values and Estimated eta0", xlim=c(0,1), 
                     xlab="p-values")
       y0 = dunif(h$breaks)*eta0

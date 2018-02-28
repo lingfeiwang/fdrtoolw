@@ -1,21 +1,20 @@
-\name{pval.estimate.eta0}
-\alias{pval.estimate.eta0}
+\name{pval.estimate.eta0.w}
+\alias{pval.estimate.eta0.w}
 \title{Estimate the Proportion of Null p-Values}
 \usage{
-pval.estimate.eta0(p, method=c("smoother", "bootstrap", "conservative",
-   "adaptive", "quantile"), lambda=seq(0,0.9,0.05), 
+pval.estimate.eta0.w(p, weight, method=c("smoother","quantile"), lambda=seq(0,0.9,0.05), 
    diagnostic.plot=TRUE, q=0.1)
 }
 \description{
-  \code{pval.estimate.eta0} estimates the proportion eta0 of null p-values in a given
-  vector of p-values. 
+  \code{pval.estimate.eta0.w} estimates the proportion eta0 of null p-values in a given
+  vector of p-values. Currently only (method=)smoother and quantile are accepted.
 }
 
 \arguments{
   \item{p}{vector of p-values}
+  \item{weight}{vector of weights.}
   \item{method}{algorithm used to estimate the proportion of null p-values.
-     Available options are
-    "conservative" , "adaptive", "bootstrap", quantile, and "smoother" (default).}
+     Only smoother (default) and quantile are adapted for weights at the moment.}
    \item{lambda}{optional tuning parameter vector needed for "bootstrap"
      and "smoothing" methods (defaults to \code{seq(0,0.9,0.05)})
      - see Storey (2002) and Storey and Tibshirani (2003).}
@@ -34,7 +33,7 @@ This quantity \code{eta0}, i.e.  the proportion eta0 of null p-values in a given
   and power 
   - see   Benjamini and Hochberg (1995, 2000) and Storey (2002) for details.
 
-The function \code{pval.estimate.eta0} provides five algorithms: the "conservative"
+The function \code{pval.estimate.eta0.w} provides five algorithms: the "conservative"
 method always returns eta0 = 1  (Benjamini and Hochberg, 1995), "adaptive"
 uses the approach suggested in Benjamini and Hochberg (2000), "bootstrap"
 employs the method from Storey (2002), "smoother" uses the smoothing spline
@@ -68,23 +67,22 @@ of "smoother".
 
 }
 \author{
-  Korbinian Strimmer (\url{http://strimmerlab.org}).
+  Lingfei Wang <Lingfei.Wang.github@outlook.com>
   
-  Adapted in part from code by Y. Benjamini and J.D. Storey. 
+  Adapted from code by K. Strimmer, Y. Benjamini, and J.D. Storey. 
 }
-\seealso{\code{\link{fdrtool}}.}
+\seealso{
+\code{\link{fdrtool.w}}
+
+\code{pval.estimate.eta0} in \code{fdrtool}}
 
 \examples{
-# load "fdrtool" library and p-values
-library("fdrtool")
-data(pvalues)
+# load library and p-values
+library("fdrtoolw")
+data(pvalues,package="fdrtool")
 
-
+w=runif(length(pvalues),min=0.5,max=1)
 # Proportion of null p-values for different methods
-pval.estimate.eta0(pvalues, method="conservative")
-pval.estimate.eta0(pvalues, method="adaptive")
-pval.estimate.eta0(pvalues, method="bootstrap")
-pval.estimate.eta0(pvalues, method="smoother")
-pval.estimate.eta0(pvalues, method="quantile")
+pval.estimate.eta0.w(pvalues, w, method="smoother")
 }
 \keyword{htest}

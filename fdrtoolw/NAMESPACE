@@ -1,36 +1,13 @@
 export(
-"censored.fit",
-"dcor0",	
-"dhalfnorm", 	
-"fdrtool",	
-"fitted.monoreg",
-"fndr.cutoff",	
-"gcmlcm", 	
-"grenander",
-"hc.score",
-"hc.thresh", 		
-"monoreg", 	
-"pcor0", 
-"phalfnorm", 	
-"plot.grenander", 
-"plot.monoreg", 	
-"pval.estimate.eta0", 		
-"qcor0",	
-"qhalfnorm", 	
-"rcor0", 	
-"residuals.monoreg", 	
-"rhalfnorm",	
-"sd2theta",	
-"theta2sd"
+"censored.fit.w",
+"fdrtool.w",	
+"fndr.cutoff.w",
+"pval.estimate.eta0.w"
 )
-S3method("fitted", "monoreg")
-S3method("plot", "grenander")
-S3method("plot", "monoreg")
-S3method("residuals", "monoreg")
 
 import("graphics")
 import("grDevices")
 import("stats")
-
-useDynLib("fdrtool")
-
+importFrom("Hmisc","wtd.quantile")
+importFrom("fdrtool","grenander","dcor0","pcor0","rcor0","qcor0")
+importFrom("weights","wtd.hist")

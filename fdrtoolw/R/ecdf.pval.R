@@ -1,4 +1,21 @@
-### ecdf.pval.R  (2007-06-15)
+# Copyright 2018 Lingfei Wang
+# 
+# This file is part of fdrtoolw. Fdrtoolw is modified from fdrtool,
+# whose copyright notice can be found below this notice.
+# 
+# Fdrtoolw is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# Fdrtoolw is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with fdrtoolw.  If not, see <http://www.gnu.org/licenses/>.
+
 ###
 ###    Estimate Empirical Density of p-Values 
 ###    
@@ -25,15 +42,17 @@
 # empirical cumulative distribution of p-values,
 # constrained such that the known fraction eta0 of null p-values 
 # is taken into account
-ecdf.pval <- function (x, eta0=1) 
+ecdf.pval <- function (x, weight, eta0=1) 
 {
     # compute empirical CDF as usual
-    x = sort(x)
+    xid=sort(x,index.return=T)$ix
+    x=x[xid]
+    ws=weight[xid]
     n = length(x)
     if (n < 1) 
         stop("'x' must have 1 or more non-missing values")
     vals = sort(unique(x))
-    F.raw = cumsum(tabulate(match(x, vals)))/n
+    F.raw=cumsum(ws)[cumsum(tabulate(match(x, vals)))]/sum(ws)
     
     # control upper bound of F:
     # make sure that the maximum slope of (Grenander) F is eta0

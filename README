@@ -1,0 +1,3 @@
+Fdrtoolw is adapted from the fdrtool R package (https://cran.r-project.org/package=fdrtool) to account for weights in false discovery rate estimation. For details, see the R package documentation and diff for changes from fdrtool.
+
+Currently fdrtoolw only accepts p-values as the statistic, and quantile and smoother as the eta0 estimation method. Feel free to adapt other statistics and methods for weights should you need to.
