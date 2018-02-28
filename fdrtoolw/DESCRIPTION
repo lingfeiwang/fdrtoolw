@@ -6,8 +6,8 @@ Author: Lingfei Wang <Lingfei.Wang.github@outlook.com>
 Maintainer: Lingfei Wang <Lingfei.Wang.github@outlook.com>
 Depends: R (>= 3.0.2)
 Suggests:
-Imports: graphics, grDevices, stats, Hmisc, fdrtool, weights
-Description: Allows weights in false discovery rates (FDR) estimation. This package is modified from fdrtool and only includes minimal changes and files. Currently, only the fdrtool function with p-value inputs is adapted for weights, named as fdrtool.w. This version depends on fdrtool 1.2.15.
+Imports: graphics, grDevices, stats, Hmisc, fdrtool (>= 1.2.15), weights
+Description: Allows weights in false discovery rates (FDR) estimation. This package is modified from 'fdrtool' and only includes minimal changes and files. Currently, only the fdrtool function with p-value inputs is adapted for weights, named as fdrtool.w.
 License: GPL-3
 Copyright: Copyright 2018 Lingfei Wang
 URL: https://github.com/lingfeiwang/fdrtoolw
